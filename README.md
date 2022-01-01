@@ -1,3 +1,3 @@
 # Authenter
 
-Simple Haskell script to generate a authentication table
+Simple Haskell script to generate an authentication table

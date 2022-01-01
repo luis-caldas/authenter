@@ -36,30 +36,40 @@ splitIntoRows collumnSize rowSize listIn =
 
 interEdge :: a -> [a] -> [a]
 interEdge character listIn =
-        [character] ++ (intersperse character listIn) ++ [character]
+        (intersperse character listIn) ++ [character]
 
 generateTable :: Int -> Int -> [Int] -> String
 generateTable width height scrambledList =
         concat $ interEdge fullSeparator $ map horizontalPrint markedMatrix
         where
-                decimals = length $ show $ width * height
+                decimals = length $ show $ (width * height) - 1
                 numbersMatrix = splitIntoRows height width scrambledList
 
-                fullSeparator = "\n " ++ (generateSeparator (length $ markedMatrix!!0)) ++ "\n"
-                markedMatrix = map (\eachNr -> [eachNr] ++ (numbersMatrix!!eachNr)) intList
+                printfIndexString = "%" ++ (show decimals) ++ "d"
+                nPrintfIndex = printf printfIndexString
+
+                leftFullMatrix = map (\eachNr -> [nPrintfIndex eachNr] ++ (map nPrintf $ numbersMatrix!!eachNr)) intList
                         where
                                 intList = [ 0 .. (length numbersMatrix) - 1 ]
 
-                horizontalPrint :: [Int] -> String
-                horizontalPrint listIn = concat $ interEdge " | " $ map (printf printfString) listIn
-                        where
                                 printfString = "%0" ++ (show decimals) ++ "d"
+                                nPrintf = printf printfString
+
+                markedMatrix = [ customFirstLine ] ++ leftFullMatrix
+                        where
+                                emptySpace = concat $ map (\_ -> " ") [ 0 .. decimals - 1]
+                                customFirstLine = [ emptySpace ] ++ (map nPrintfIndex [ 0 .. (length $ numbersMatrix!!0) - 1 ])
+
+                fullSeparator = "\n " ++ (generateSeparator (length $ markedMatrix!!0)) ++ "\n"
+
+                horizontalPrint :: [String] -> String
+                horizontalPrint listIn = concat $ [ "  " ] ++ (interEdge " | " listIn)
 
                 generateSeparator :: Int -> String
                 generateSeparator size = concat $ interEdge "|" $ map (\_ -> separator) [ 1 .. size ]
                         where
                                 separatorChar = "-"
-                                separator = concat $ map (\_ -> separatorChar) [ 1 .. ( decimals + 2 ) ]
+                                separator = concat $ map (\_ -> separatorChar) [ 1 .. decimals + 2 ]
 
 -- Globals
 
